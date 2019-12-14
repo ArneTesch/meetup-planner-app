@@ -20,9 +20,9 @@ function App() {
         <Stack.Navigator
           screenOptions={{
             headerStyle: {
-              backgroundColor: "#110133"
+              backgroundColor: "#222631"
             },
-            headerTintColor: "#fff"
+            headerTintColor: "#D8535C"
           }}
         >
           <Stack.Screen name="Login" component={LoginScreen} />

@@ -2,6 +2,11 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import React from "react";
 import { Button, StatusBar, StyleSheet, Text, View } from "react-native";
 import SafeAreaView from "react-native-safe-area-view";
+import {
+  NavigationParams,
+  NavigationScreenProp,
+  NavigationState
+} from "react-navigation";
 import { RootParamList } from "../App";
 
 type MeetupsScreenNavigationProp = StackNavigationProp<
@@ -10,16 +15,16 @@ type MeetupsScreenNavigationProp = StackNavigationProp<
 >;
 
 type Props = {
-  navigation: any;
+  navigation: NavigationScreenProp<NavigationState, NavigationParams>;
   route: MeetupsScreenNavigationProp;
 };
 
 const MeetupsScreen: React.FC<Props> = props => {
-  console.log(props);
+  console.log(props.route);
   const { navigation } = props;
   return (
-    <SafeAreaView style={[{ backgroundColor: "#110133" }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#110133" />
+    <SafeAreaView style={[{ backgroundColor: "#222631" }]}>
+      <StatusBar barStyle="light-content" />
       <View>
         <Text>Meetups Screen</Text>
         <Button title="Back to meetups" onPress={() => navigation.goBack()} />
