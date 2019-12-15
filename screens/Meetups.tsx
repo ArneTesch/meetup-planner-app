@@ -20,8 +20,13 @@ type Props = {
 };
 
 const MeetupsScreen: React.FC<Props> = props => {
-  console.log(props.route);
-  const { navigation } = props;
+  const { navigation, route } = props;
+  // const { data, loading, error } = useQuery(GET_MEETUPS, {
+  //   onCompleted: data => {
+  //     console.log(data);
+  //   }
+  // });
+
   return (
     <SafeAreaView style={[{ backgroundColor: "#222631" }]}>
       <StatusBar barStyle="light-content" />
