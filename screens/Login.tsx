@@ -1,14 +1,20 @@
+import { useLazyQuery } from "@apollo/react-hooks";
 import { StackNavigationProp } from "@react-navigation/stack";
-import React from "react";
-import { Button, Image, StatusBar, StyleSheet, View } from "react-native";
+import { gql } from "apollo-boost";
+import React, { useContext } from "react";
+import useForm from "react-hook-form";
+import { Button, Image, StatusBar, StyleSheet, Text, View } from "react-native";
 import SafeAreaView from "react-native-safe-area-view";
 import {
   NavigationParams,
   NavigationScreenProp,
   NavigationState
 } from "react-navigation";
+import * as yup from "yup";
 import { RootParamList } from "../App";
 import Input from "../components/Input";
+import LoadingSpinner from "../components/LoadingSpinner";
+import AuthContext from "../context/auth-context";
 import { colors } from "../styles/colors";
 
 type MeetupsScreenNavigationProp = StackNavigationProp<
@@ -21,13 +27,58 @@ type Props = {
   route: MeetupsScreenNavigationProp;
 };
 
+type FormData = {
+  email: string;
+  password: string;
+};
+
+const LOGIN = gql`
+  query VisitorLogin($email: String!, $password: String!) {
+    visitorLogin(email: $email, password: $password) {
+      visitorId
+      token
+      tokenExpiration
+    }
+  }
+`;
+
+const LoginValidationSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Please provide a valid email address")
+    .required("Email is a required field."),
+  password: yup.string().required("Password is a required field.")
+});
+
 const LoginScreen: React.FC<Props> = props => {
   const { navigation } = props;
   const { primary, accent, smoke, text } = colors.light;
+  const authContext = useContext(AuthContext);
+  const [login, { loading, data }] = useLazyQuery(LOGIN, {
+    onCompleted: data => {
+      authContext.login(
+        data.visitorLogin.token,
+        data.visitorLogin.visitorId,
+        data.visitorLogin.tokenExpiration
+      );
+    }
+  });
+  const { register, setValue, handleSubmit, errors } = useForm<FormData>({
+    validationSchema: LoginValidationSchema
+  });
 
-  const loginHandler = () => {
-    console.log("LOGIN");
-  };
+  const onSubmit = handleSubmit(({ email, password }) => {
+    login({
+      variables: {
+        email: email,
+        password: password
+      }
+    });
+  });
+
+  if (loading) {
+    return <LoadingSpinner size="large" color="#fff" />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,17 +91,39 @@ const LoginScreen: React.FC<Props> = props => {
           keyboardType={"email-address"}
           placeholder={"Email address"}
           placeholderTextColor={smoke}
-          customStyles={styles.inputContainer}
+          customStyles={[
+            errors.email ? { marginBottom: 0 } : { marginBottom: 25 }
+          ]}
+          ref={register({ name: "email" })}
+          onChangeText={value => setValue("email", value)}
+          autoCapitalize="none"
         />
+        {errors.email && (
+          <Text style={styles.errorMsg}>{errors.email.message}</Text>
+        )}
         <Input
           textContentType="password"
           icon={{ name: "key", size: 21 }}
           placeholder={"Password"}
           placeholderTextColor={smoke}
           secureTextEntry
+          ref={register({ name: "password" })}
+          onChangeText={value => setValue("password", value)}
         />
+        {errors.password && (
+          <Text style={styles.errorMsg}>{errors.password.message}</Text>
+        )}
         <View style={styles.loginButton}>
-          <Button onPress={loginHandler} title="LOGIN" color={text} />
+          <Button onPress={onSubmit} title="LOGIN" color={text} />
+        </View>
+
+        <View style={styles.registerContainer}>
+          <Text
+            style={styles.registerButton}
+            onPress={() => navigation.navigate("Register")}
+          >
+            No account yet? Register!
+          </Text>
         </View>
       </View>
     </SafeAreaView>
@@ -64,6 +137,7 @@ const styles = StyleSheet.create({
     padding: 15
   },
   main: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -72,9 +146,6 @@ const styles = StyleSheet.create({
     height: 160,
     marginVertical: 15,
     overlayColor: "#fff"
-  },
-  inputContainer: {
-    marginBottom: 25
   },
   loginButton: {
     flexDirection: "column",
@@ -85,6 +156,24 @@ const styles = StyleSheet.create({
     marginTop: 15,
     borderWidth: 1,
     borderColor: "#fff"
+  },
+  registerButton: {
+    color: "#fff",
+    textDecorationLine: "underline",
+    textDecorationColor: "#fff"
+  },
+  registerContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginBottom: 36
+  },
+  errorMsg: {
+    color: colors.light.error,
+    fontSize: 12,
+    textAlign: "left",
+    width: "100%",
+    marginTop: 5,
+    marginBottom: 25
   }
 });
 

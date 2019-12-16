@@ -46,6 +46,7 @@ interface InputProps extends TextInputProps {
     | "oneTimeCode";
   keyboardType?: KeyboardTypeOptions;
   customStyles?: StyleProp<ViewStyle>;
+  ref?: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | any;
 }
 
 const Input: React.FC<InputProps> = props => {
