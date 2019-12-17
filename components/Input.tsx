@@ -1,5 +1,5 @@
 import { AntDesign } from "@expo/vector-icons";
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   KeyboardTypeOptions,
   StyleProp,
@@ -49,28 +49,37 @@ interface InputProps extends TextInputProps {
   ref?: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | any;
 }
 
-const Input: React.FC<InputProps> = props => {
-  const { customStyles, icon, textContentType, keyboardType } = props;
+export type Ref =
+  | HTMLInputElement
+  | HTMLSelectElement
+  | HTMLTextAreaElement
+  | any;
 
-  return (
-    <View style={[styles["inputContainer"], customStyles]}>
-      <TextInput
-        style={[styles.input, !icon && { paddingRight: 0 }]}
-        textContentType={textContentType ? textContentType : "none"}
-        keyboardType={keyboardType ? keyboardType : "default"}
-        {...props}
-      />
-      {icon && (
-        <AntDesign
-          name={icon.name}
-          size={icon.size}
-          color="#fff"
-          style={styles.iconWrapper}
+const Input: React.FC<InputProps> = forwardRef<Ref, InputProps>(
+  (props, ref) => {
+    const { customStyles, icon, textContentType, keyboardType } = props;
+
+    return (
+      <View style={[styles["inputContainer"], customStyles]}>
+        <TextInput
+          ref={ref}
+          style={[styles.input, !icon && { paddingRight: 0 }]}
+          textContentType={textContentType ? textContentType : "none"}
+          keyboardType={keyboardType ? keyboardType : "default"}
+          {...props}
         />
-      )}
-    </View>
-  );
-};
+        {icon && (
+          <AntDesign
+            name={icon.name}
+            size={icon.size}
+            color="#fff"
+            style={styles.iconWrapper}
+          />
+        )}
+      </View>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   inputContainer: {

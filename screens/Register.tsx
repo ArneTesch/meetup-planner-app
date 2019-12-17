@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
-import React, { useContext } from "react";
+import React, { createRef, useContext } from "react";
 import useForm from "react-hook-form";
 import {
   Button,
@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import SafeAreaView from "react-native-safe-area-view";
 import * as yup from "yup";
-import Input from "../components/Input";
+import Input, { Ref } from "../components/Input";
 import LoadingSpinner from "../components/LoadingSpinner";
 import AuthContext from "../context/auth-context";
 import { colors } from "../styles/colors";
@@ -81,20 +81,22 @@ const RegisterScreen: React.FC = () => {
     }
   });
 
-  const registerHandler = (data: RegisterFormData) => {
-    console.log(data);
-    createVisitor({
-      variables: {
-        firstname: data.firstname,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password
-      }
-    }).then(console.log);
+  const registerHandler = () => {
+    console.log(lastNameRef.current.value);
+
+    // createVisitor({
+    //   variables: {
+    //     firstname: data.firstname,
+    //     lastName: data.lastName,
+    //     email: data.email,
+    //     password: data.password
+    //   }
+    // }).then(console.log);
   };
 
   if (loading) <LoadingSpinner size="large" color="#fff" />;
-  let lastnameRef;
+
+  const lastNameRef = createRef<Ref>();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -116,6 +118,12 @@ const RegisterScreen: React.FC = () => {
             ]}
             ref={register({ name: "firstname" })}
             onChangeText={value => setValue("firstname", value)}
+            onSubmitEditing={() => {
+              if (lastNameRef.current) {
+                lastNameRef.current.focus();
+              }
+            }}
+            blurOnSubmit={false}
           />
           {errors.firstname && (
             <Text style={styles.errorMsg}>{errors.firstname.message}</Text>
@@ -127,7 +135,8 @@ const RegisterScreen: React.FC = () => {
             customStyles={[
               errors.lastName ? { marginBottom: 0 } : { marginBottom: 25 }
             ]}
-            ref={register({ name: "lastName" })}
+            // ref={register({ name: "lastName" })}
+            ref={lastNameRef}
             onChangeText={value => setValue("lastName", value)}
           />
           {errors.lastName && (
@@ -177,7 +186,7 @@ const RegisterScreen: React.FC = () => {
           )}
           <View style={styles.loginButton}>
             <Button
-              onPress={handleSubmit(registerHandler)}
+              onPress={() => registerHandler()}
               title="REGISTER"
               color={text}
             />
