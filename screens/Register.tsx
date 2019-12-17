@@ -76,6 +76,12 @@ const RegisterScreen: React.FC = () => {
     }
   });
 
+  const firstnameRef = createRef<Ref>();
+  const lastNameRef = createRef<Ref>();
+  const emailRef = createRef<Ref>();
+  const passwordRef = createRef<Ref>();
+  const confirmPasswordRef = createRef<Ref>();
+
   const registerHandler = (data: RegisterFormData) => {
     createVisitor({
       variables: {
@@ -88,12 +94,6 @@ const RegisterScreen: React.FC = () => {
   };
 
   if (loading) <LoadingSpinner size="large" color="#fff" />;
-
-  const firstnameRef = createRef<Ref>();
-  const lastNameRef = createRef<Ref>();
-  const emailRef = createRef<Ref>();
-  const passwordRef = createRef<Ref>();
-  const confirmPasswordRef = createRef<Ref>();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -125,140 +125,149 @@ const RegisterScreen: React.FC = () => {
               errors,
               setFieldTouched,
               touched,
-              isValid
+              isValid,
+              isSubmitting
             }) => (
               <View style={styles.registerFields}>
-                <Input
-                  textContentType="givenName"
-                  placeholder="Firstname"
-                  placeholderTextColor={smoke}
-                  onChangeText={handleChange("firstname")}
-                  onBlur={() => {
-                    setFieldTouched("firstname");
-                    handleBlur("firstname");
-                  }}
-                  ref={firstnameRef}
-                  onSubmitEditing={() => {
-                    if (lastNameRef.current) {
-                      lastNameRef.current.focus();
-                    }
-                  }}
-                  blurOnSubmit={false}
-                  customStyles={[
-                    touched.firstname && errors.firstname
-                      ? { marginBottom: 0 }
-                      : { marginBottom: 25 }
-                  ]}
-                  value={values.firstname}
-                  autoFocus
-                />
-                {touched.firstname && errors.firstname && (
-                  <Text style={styles.errorMsg}>{errors.firstname}</Text>
+                {isSubmitting ? (
+                  <LoadingSpinner size="large" color="#fff" />
+                ) : (
+                  <React.Fragment>
+                    <Input
+                      textContentType="givenName"
+                      placeholder="Firstname"
+                      placeholderTextColor={smoke}
+                      onChangeText={handleChange("firstname")}
+                      onBlur={() => {
+                        setFieldTouched("firstname");
+                        handleBlur("firstname");
+                      }}
+                      ref={firstnameRef}
+                      onSubmitEditing={() => {
+                        if (lastNameRef.current) {
+                          lastNameRef.current.focus();
+                        }
+                      }}
+                      blurOnSubmit={false}
+                      customStyles={[
+                        touched.firstname && errors.firstname
+                          ? { marginBottom: 0 }
+                          : { marginBottom: 25 }
+                      ]}
+                      value={values.firstname}
+                      autoFocus
+                    />
+                    {touched.firstname && errors.firstname && (
+                      <Text style={styles.errorMsg}>{errors.firstname}</Text>
+                    )}
+                    <Input
+                      textContentType="familyName"
+                      placeholder="Last name"
+                      placeholderTextColor={smoke}
+                      onChangeText={handleChange("lastName")}
+                      onBlur={() => {
+                        setFieldTouched("lastName");
+                        handleBlur("lastName");
+                      }}
+                      ref={lastNameRef}
+                      onSubmitEditing={() => {
+                        if (emailRef.current) {
+                          emailRef.current.focus();
+                        }
+                      }}
+                      blurOnSubmit={false}
+                      customStyles={[
+                        errors.lastName && touched.lastName
+                          ? { marginBottom: 0 }
+                          : { marginBottom: 25 }
+                      ]}
+                      value={values.lastName}
+                    />
+                    {touched.lastName && errors.lastName && (
+                      <Text style={styles.errorMsg}>{errors.lastName}</Text>
+                    )}
+                    <Input
+                      textContentType="emailAddress"
+                      keyboardType={"email-address"}
+                      placeholder="Email address"
+                      placeholderTextColor={smoke}
+                      onChangeText={handleChange("email")}
+                      onBlur={() => {
+                        handleBlur("email");
+                        setFieldTouched("email");
+                      }}
+                      ref={emailRef}
+                      autoCapitalize="none"
+                      onSubmitEditing={() => {
+                        if (passwordRef.current) {
+                          passwordRef.current.focus();
+                        }
+                      }}
+                      blurOnSubmit={false}
+                      customStyles={[
+                        errors.email && touched.email
+                          ? { marginBottom: 0 }
+                          : { marginBottom: 25 }
+                      ]}
+                      value={values.email}
+                    />
+                    {touched.email && errors.email && (
+                      <Text style={styles.errorMsg}>{errors.email}</Text>
+                    )}
+                    <Input
+                      textContentType="password"
+                      placeholder={"Password"}
+                      placeholderTextColor={smoke}
+                      secureTextEntry
+                      onChangeText={handleChange("password")}
+                      onBlur={() => {
+                        handleBlur("password");
+                        setFieldTouched("password");
+                      }}
+                      ref={passwordRef}
+                      onSubmitEditing={() => {
+                        if (confirmPasswordRef.current) {
+                          confirmPasswordRef.current.focus();
+                        }
+                      }}
+                      customStyles={[
+                        errors.password && touched.password
+                          ? { marginBottom: 0 }
+                          : { marginBottom: 25 }
+                      ]}
+                      value={values.password}
+                    />
+                    {touched.password && errors.password && (
+                      <Text style={styles.errorMsg}>{errors.password}</Text>
+                    )}
+                    <Input
+                      textContentType="password"
+                      placeholder="Confirm password"
+                      placeholderTextColor={smoke}
+                      secureTextEntry
+                      onChangeText={handleChange("confirmPassword")}
+                      onBlur={() => {
+                        handleBlur("confirmPassword");
+                        setFieldTouched("confirmPassword");
+                      }}
+                      ref={confirmPasswordRef}
+                      value={values.confirmPassword}
+                    />
+                    {touched.confirmPassword && errors.confirmPassword && (
+                      <Text style={styles.errorMsg}>
+                        {errors.confirmPassword}
+                      </Text>
+                    )}
+                    <View style={styles.registerButton}>
+                      <Button
+                        disabled={!isValid}
+                        onPress={() => handleSubmit()}
+                        title="REGISTER"
+                        color={text}
+                      />
+                    </View>
+                  </React.Fragment>
                 )}
-                <Input
-                  textContentType="familyName"
-                  placeholder="Last name"
-                  placeholderTextColor={smoke}
-                  onChangeText={handleChange("lastName")}
-                  onBlur={() => {
-                    setFieldTouched("lastName");
-                    handleBlur("lastName");
-                  }}
-                  ref={lastNameRef}
-                  onSubmitEditing={() => {
-                    if (emailRef.current) {
-                      emailRef.current.focus();
-                    }
-                  }}
-                  blurOnSubmit={false}
-                  customStyles={[
-                    errors.lastName && touched.lastName
-                      ? { marginBottom: 0 }
-                      : { marginBottom: 25 }
-                  ]}
-                  value={values.lastName}
-                />
-                {touched.lastName && errors.lastName && (
-                  <Text style={styles.errorMsg}>{errors.lastName}</Text>
-                )}
-                <Input
-                  textContentType="emailAddress"
-                  keyboardType={"email-address"}
-                  placeholder="Email address"
-                  placeholderTextColor={smoke}
-                  onChangeText={handleChange("email")}
-                  onBlur={() => {
-                    handleBlur("email");
-                    setFieldTouched("email");
-                  }}
-                  ref={emailRef}
-                  autoCapitalize="none"
-                  onSubmitEditing={() => {
-                    if (passwordRef.current) {
-                      passwordRef.current.focus();
-                    }
-                  }}
-                  blurOnSubmit={false}
-                  customStyles={[
-                    errors.email && touched.email
-                      ? { marginBottom: 0 }
-                      : { marginBottom: 25 }
-                  ]}
-                  value={values.email}
-                />
-                {touched.email && errors.email && (
-                  <Text style={styles.errorMsg}>{errors.email}</Text>
-                )}
-                <Input
-                  textContentType="password"
-                  placeholder={"Password"}
-                  placeholderTextColor={smoke}
-                  secureTextEntry
-                  onChangeText={handleChange("password")}
-                  onBlur={() => {
-                    handleBlur("password");
-                    setFieldTouched("password");
-                  }}
-                  ref={passwordRef}
-                  onSubmitEditing={() => {
-                    if (confirmPasswordRef.current) {
-                      confirmPasswordRef.current.focus();
-                    }
-                  }}
-                  customStyles={[
-                    errors.password && touched.password
-                      ? { marginBottom: 0 }
-                      : { marginBottom: 25 }
-                  ]}
-                  value={values.password}
-                />
-                {touched.password && errors.password && (
-                  <Text style={styles.errorMsg}>{errors.password}</Text>
-                )}
-                <Input
-                  textContentType="password"
-                  placeholder="Confirm password"
-                  placeholderTextColor={smoke}
-                  secureTextEntry
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={() => {
-                    handleBlur("confirmPassword");
-                    setFieldTouched("confirmPassword");
-                  }}
-                  ref={confirmPasswordRef}
-                  value={values.confirmPassword}
-                />
-                {touched.confirmPassword && errors.confirmPassword && (
-                  <Text style={styles.errorMsg}>{errors.confirmPassword}</Text>
-                )}
-                <View style={styles.registerButton}>
-                  <Button
-                    disabled={!isValid}
-                    onPress={() => handleSubmit()}
-                    title="REGISTER"
-                    color={text}
-                  />
-                </View>
               </View>
             )}
           </Formik>
