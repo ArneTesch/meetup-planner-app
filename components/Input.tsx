@@ -9,6 +9,7 @@ import {
   ViewStyle
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
+import { colors } from "../styles/colors";
 
 interface InputProps extends TextInputProps {
   icon?: {
@@ -46,6 +47,8 @@ interface InputProps extends TextInputProps {
     | "oneTimeCode";
   keyboardType?: KeyboardTypeOptions;
   customStyles?: StyleProp<ViewStyle>;
+  errors?: any;
+  touched?: any;
   ref?: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | any;
 }
 
@@ -101,6 +104,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 3,
     right: 0
+  },
+  errorMsg: {
+    color: colors.light.error,
+    fontSize: 12,
+    textAlign: "left",
+    width: "100%",
+    marginTop: 5,
+    marginBottom: 25
   }
 });
 

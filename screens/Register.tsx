@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/react-hooks";
 import { gql } from "apollo-boost";
+import { Formik } from "formik";
 import React, { createRef, useContext } from "react";
-import useForm from "react-hook-form";
 import {
   Button,
   Image,
@@ -64,11 +64,6 @@ const RegisterValidationSchema = yup.object().shape({
 
 const RegisterScreen: React.FC = () => {
   const { smoke, text } = colors.light;
-  const { register, setValue, handleSubmit, errors } = useForm<
-    RegisterFormData
-  >({
-    validationSchema: RegisterValidationSchema
-  });
   const authContext = useContext(AuthContext);
   const [createVisitor, { loading, error }] = useMutation(REGISTER_USER, {
     onCompleted: ({ createVisitor }) => {
@@ -81,22 +76,24 @@ const RegisterScreen: React.FC = () => {
     }
   });
 
-  const registerHandler = () => {
-    console.log(lastNameRef.current.value);
-
-    // createVisitor({
-    //   variables: {
-    //     firstname: data.firstname,
-    //     lastName: data.lastName,
-    //     email: data.email,
-    //     password: data.password
-    //   }
-    // }).then(console.log);
+  const registerHandler = (data: RegisterFormData) => {
+    createVisitor({
+      variables: {
+        firstname: data.firstname,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password
+      }
+    });
   };
 
   if (loading) <LoadingSpinner size="large" color="#fff" />;
 
+  const firstnameRef = createRef<Ref>();
   const lastNameRef = createRef<Ref>();
+  const emailRef = createRef<Ref>();
+  const passwordRef = createRef<Ref>();
+  const confirmPasswordRef = createRef<Ref>();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -108,89 +105,163 @@ const RegisterScreen: React.FC = () => {
             Register today and stay informed of upcoming meetups and events!
           </Text>
         </View>
-        <View style={styles.registerFields}>
-          <Input
-            textContentType="givenName"
-            placeholder="Firstname"
-            placeholderTextColor={smoke}
-            customStyles={[
-              errors.firstname ? { marginBottom: 0 } : { marginBottom: 25 }
-            ]}
-            ref={register({ name: "firstname" })}
-            onChangeText={value => setValue("firstname", value)}
-            onSubmitEditing={() => {
-              if (lastNameRef.current) {
-                lastNameRef.current.focus();
-              }
+        <View style={{ flex: 1 }}>
+          <Formik
+            initialValues={{
+              firstname: "",
+              lastName: "",
+              email: "",
+              password: "",
+              confirmPassword: ""
             }}
-            blurOnSubmit={false}
-          />
-          {errors.firstname && (
-            <Text style={styles.errorMsg}>{errors.firstname.message}</Text>
-          )}
-          <Input
-            textContentType="familyName"
-            placeholder="Last name"
-            placeholderTextColor={smoke}
-            customStyles={[
-              errors.lastName ? { marginBottom: 0 } : { marginBottom: 25 }
-            ]}
-            // ref={register({ name: "lastName" })}
-            ref={lastNameRef}
-            onChangeText={value => setValue("lastName", value)}
-          />
-          {errors.lastName && (
-            <Text style={styles.errorMsg}>{errors.lastName.message}</Text>
-          )}
-          <Input
-            textContentType="emailAddress"
-            keyboardType={"email-address"}
-            placeholder="Email address"
-            placeholderTextColor={smoke}
-            customStyles={[
-              errors.email ? { marginBottom: 0 } : { marginBottom: 25 }
-            ]}
-            ref={register({ name: "email" })}
-            onChangeText={value => setValue("email", value)}
-            autoCapitalize="none"
-          />
-          {errors.email && (
-            <Text style={styles.errorMsg}>{errors.email.message}</Text>
-          )}
-          <Input
-            textContentType="newPassword"
-            placeholder={"Password"}
-            placeholderTextColor={smoke}
-            customStyles={[
-              errors.password ? { marginBottom: 0 } : { marginBottom: 25 }
-            ]}
-            secureTextEntry
-            ref={register({ name: "password" })}
-            onChangeText={value => setValue("password", value)}
-          />
-          {errors.password && (
-            <Text style={styles.errorMsg}>{errors.password.message}</Text>
-          )}
-          <Input
-            textContentType="newPassword"
-            placeholder="Confirm password"
-            placeholderTextColor={smoke}
-            secureTextEntry
-            ref={register({ name: "confirmPassword" })}
-            onChangeText={value => setValue("confirmPassword", value)}
-          />
-          {errors.confirmPassword && (
-            <Text style={styles.errorMsg}>
-              {errors.confirmPassword.message}
-            </Text>
-          )}
-          <View style={styles.loginButton}>
-            <Button
-              onPress={() => registerHandler()}
-              title="REGISTER"
-              color={text}
-            />
-          </View>
+            validationSchema={RegisterValidationSchema}
+            onSubmit={values => registerHandler(values)}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              setFieldTouched,
+              touched,
+              isValid
+            }) => (
+              <View style={styles.registerFields}>
+                <Input
+                  textContentType="givenName"
+                  placeholder="Firstname"
+                  placeholderTextColor={smoke}
+                  onChangeText={handleChange("firstname")}
+                  onBlur={() => {
+                    setFieldTouched("firstname");
+                    handleBlur("firstname");
+                  }}
+                  ref={firstnameRef}
+                  onSubmitEditing={() => {
+                    if (lastNameRef.current) {
+                      lastNameRef.current.focus();
+                    }
+                  }}
+                  blurOnSubmit={false}
+                  customStyles={[
+                    touched.firstname && errors.firstname
+                      ? { marginBottom: 0 }
+                      : { marginBottom: 25 }
+                  ]}
+                  value={values.firstname}
+                  autoFocus
+                />
+                {touched.firstname && errors.firstname && (
+                  <Text style={styles.errorMsg}>{errors.firstname}</Text>
+                )}
+                <Input
+                  textContentType="familyName"
+                  placeholder="Last name"
+                  placeholderTextColor={smoke}
+                  onChangeText={handleChange("lastName")}
+                  onBlur={() => {
+                    setFieldTouched("lastName");
+                    handleBlur("lastName");
+                  }}
+                  ref={lastNameRef}
+                  onSubmitEditing={() => {
+                    if (emailRef.current) {
+                      emailRef.current.focus();
+                    }
+                  }}
+                  blurOnSubmit={false}
+                  customStyles={[
+                    errors.lastName && touched.lastName
+                      ? { marginBottom: 0 }
+                      : { marginBottom: 25 }
+                  ]}
+                  value={values.lastName}
+                />
+                {touched.lastName && errors.lastName && (
+                  <Text style={styles.errorMsg}>{errors.lastName}</Text>
+                )}
+                <Input
+                  textContentType="emailAddress"
+                  keyboardType={"email-address"}
+                  placeholder="Email address"
+                  placeholderTextColor={smoke}
+                  onChangeText={handleChange("email")}
+                  onBlur={() => {
+                    handleBlur("email");
+                    setFieldTouched("email");
+                  }}
+                  ref={emailRef}
+                  autoCapitalize="none"
+                  onSubmitEditing={() => {
+                    if (passwordRef.current) {
+                      passwordRef.current.focus();
+                    }
+                  }}
+                  blurOnSubmit={false}
+                  customStyles={[
+                    errors.email && touched.email
+                      ? { marginBottom: 0 }
+                      : { marginBottom: 25 }
+                  ]}
+                  value={values.email}
+                />
+                {touched.email && errors.email && (
+                  <Text style={styles.errorMsg}>{errors.email}</Text>
+                )}
+                <Input
+                  textContentType="password"
+                  placeholder={"Password"}
+                  placeholderTextColor={smoke}
+                  secureTextEntry
+                  onChangeText={handleChange("password")}
+                  onBlur={() => {
+                    handleBlur("password");
+                    setFieldTouched("password");
+                  }}
+                  ref={passwordRef}
+                  onSubmitEditing={() => {
+                    if (confirmPasswordRef.current) {
+                      confirmPasswordRef.current.focus();
+                    }
+                  }}
+                  customStyles={[
+                    errors.password && touched.password
+                      ? { marginBottom: 0 }
+                      : { marginBottom: 25 }
+                  ]}
+                  value={values.password}
+                />
+                {touched.password && errors.password && (
+                  <Text style={styles.errorMsg}>{errors.password}</Text>
+                )}
+                <Input
+                  textContentType="password"
+                  placeholder="Confirm password"
+                  placeholderTextColor={smoke}
+                  secureTextEntry
+                  onChangeText={handleChange("confirmPassword")}
+                  onBlur={() => {
+                    handleBlur("confirmPassword");
+                    setFieldTouched("confirmPassword");
+                  }}
+                  ref={confirmPasswordRef}
+                  value={values.confirmPassword}
+                />
+                {touched.confirmPassword && errors.confirmPassword && (
+                  <Text style={styles.errorMsg}>{errors.confirmPassword}</Text>
+                )}
+                <View style={styles.registerButton}>
+                  <Button
+                    disabled={!isValid}
+                    onPress={() => handleSubmit()}
+                    title="REGISTER"
+                    color={text}
+                  />
+                </View>
+              </View>
+            )}
+          </Formik>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -204,6 +275,7 @@ const styles = StyleSheet.create({
     padding: 15
   },
   main: {
+    flex: 1,
     alignItems: "center"
   },
   logo: {
@@ -229,13 +301,12 @@ const styles = StyleSheet.create({
   registerFields: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "flex-start"
+    alignItems: "stretch"
   },
-  loginButton: {
-    flexDirection: "column",
+  registerButton: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
     height: 38,
     marginTop: 15,
     borderWidth: 1,
