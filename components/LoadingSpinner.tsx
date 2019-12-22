@@ -18,7 +18,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = props => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.light.primary,
+    backgroundColor: colors.dark.primary,
     justifyContent: "center",
     alignItems: "center"
   }

@@ -1,9 +1,17 @@
 import { useLazyQuery } from "@apollo/react-hooks";
+import { Route } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { gql } from "apollo-boost";
-import React, { useContext } from "react";
+import React, { ComponentType, useContext } from "react";
 import useForm from "react-hook-form";
-import { Button, Image, StatusBar, StyleSheet, Text, View } from "react-native";
+import {
+  Button,
+  Image,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 import SafeAreaView from "react-native-safe-area-view";
 import {
   NavigationParams,
@@ -15,32 +23,24 @@ import { RootParamList } from "../App";
 import Input from "../components/Input";
 import LoadingSpinner from "../components/LoadingSpinner";
 import AuthContext from "../context/auth-context";
+import { LOGIN } from "../graphql/auth";
 import { colors } from "../styles/colors";
 
-type MeetupsScreenNavigationProp = StackNavigationProp<
-  RootParamList,
-  "Meetups"
->;
+type LoginScreenNavigationProp = StackNavigationProp<RootParamList, "Login">;
 
 type Props = {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>;
-  route: MeetupsScreenNavigationProp;
+  route: LoginScreenNavigationProp;
+  component: ComponentType<{
+    route: Pick<Route<"Login">, "key" | "name">;
+    navigation: any;
+  }>;
 };
 
 type FormData = {
   email: string;
   password: string;
 };
-
-const LOGIN = gql`
-  query VisitorLogin($email: String!, $password: String!) {
-    visitorLogin(email: $email, password: $password) {
-      visitorId
-      token
-      tokenExpiration
-    }
-  }
-`;
 
 const LoginValidationSchema = yup.object().shape({
   email: yup
@@ -50,17 +50,20 @@ const LoginValidationSchema = yup.object().shape({
   password: yup.string().required("Password is a required field.")
 });
 
-const LoginScreen: React.FC<Props> = props => {
-  const { navigation } = props;
-  const { primary, accent, smoke, text } = colors.light;
+const LoginScreen = ({ navigation }) => {
+  const { primary, accent, smoke, text } = colors.dark;
   const authContext = useContext(AuthContext);
-  const [login, { loading, data }] = useLazyQuery(LOGIN, {
+  const [login, { loading }] = useLazyQuery(LOGIN, {
     onCompleted: data => {
-      authContext.login(
-        data.visitorLogin.token,
-        data.visitorLogin.visitorId,
-        data.visitorLogin.tokenExpiration
-      );
+      if (data) {
+        authContext.login(
+          data.visitorLogin.token,
+          data.visitorLogin.visitorId,
+          data.visitorLogin.tokenExpiration
+        );
+      } else {
+        console.log(data);
+      }
     }
   });
   const { register, setValue, handleSubmit, errors } = useForm<FormData>({
@@ -76,9 +79,7 @@ const LoginScreen: React.FC<Props> = props => {
     });
   });
 
-  if (loading) {
-    return <LoadingSpinner size="large" color="#fff" />;
-  }
+  if (loading) return <LoadingSpinner size="large" color="#fff" />;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -87,7 +88,10 @@ const LoginScreen: React.FC<Props> = props => {
         <Image style={styles.logo} source={require("../assets/logo.png")} />
         <Input
           textContentType="emailAddress"
-          icon={{ name: "user", size: 21 }}
+          icon={{
+            name: `${Platform.OS === "ios" ? "ios-contact" : "md-contact"}`,
+            size: 21
+          }}
           keyboardType={"email-address"}
           placeholder={"Email address"}
           placeholderTextColor={smoke}
@@ -103,7 +107,10 @@ const LoginScreen: React.FC<Props> = props => {
         )}
         <Input
           textContentType="password"
-          icon={{ name: "key", size: 21 }}
+          icon={{
+            name: `${Platform.OS === "ios" ? "ios-key" : "md-key"}`,
+            size: 21
+          }}
           placeholder={"Password"}
           placeholderTextColor={smoke}
           secureTextEntry
@@ -114,7 +121,11 @@ const LoginScreen: React.FC<Props> = props => {
           <Text style={styles.errorMsg}>{errors.password.message}</Text>
         )}
         <View style={styles.loginButton}>
-          <Button onPress={onSubmit} title="LOGIN" color={text} />
+          <Button
+            onPress={onSubmit}
+            title="LOGIN"
+            color={Platform.OS === "ios" ? "#fff" : primary}
+          />
         </View>
 
         <View style={styles.registerContainer}>
@@ -132,7 +143,7 @@ const LoginScreen: React.FC<Props> = props => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.light.primary,
+    backgroundColor: colors.dark.primary,
     flex: 1,
     padding: 15
   },
@@ -155,7 +166,8 @@ const styles = StyleSheet.create({
     height: 38,
     marginTop: 15,
     borderWidth: 1,
-    borderColor: "#fff"
+    borderColor: "#fff",
+    color: "#fff"
   },
   registerButton: {
     color: "#fff",
@@ -168,7 +180,7 @@ const styles = StyleSheet.create({
     marginBottom: 36
   },
   errorMsg: {
-    color: colors.light.error,
+    color: colors.dark.error,
     fontSize: 12,
     textAlign: "left",
     width: "100%",
