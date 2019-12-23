@@ -1,5 +1,4 @@
 import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
 import { Formik } from "formik";
 import React, { createRef, useContext } from "react";
 import {
@@ -16,6 +15,7 @@ import * as yup from "yup";
 import Input, { Ref } from "../components/Input";
 import LoadingSpinner from "../components/LoadingSpinner";
 import AuthContext from "../context/auth-context";
+import { REGISTER_USER } from "../graphql/auth";
 import { colors } from "../styles/colors";
 
 type RegisterFormData = {
@@ -25,28 +25,6 @@ type RegisterFormData = {
   password: string;
   confirmPassword: string;
 };
-
-const REGISTER_USER = gql`
-  mutation CreateVisitor(
-    $firstname: String!
-    $lastName: String!
-    $email: String!
-    $password: String!
-  ) {
-    createVisitor(
-      visitorInput: {
-        firstname: $firstname
-        lastName: $lastName
-        email: $email
-        password: $password
-      }
-    ) {
-      visitorId
-      token
-      tokenExpiration
-    }
-  }
-`;
 
 const RegisterValidationSchema = yup.object().shape({
   firstname: yup.string().required("Firstname is a required field"),
@@ -63,7 +41,7 @@ const RegisterValidationSchema = yup.object().shape({
 });
 
 const RegisterScreen: React.FC = () => {
-  const { smoke, text } = colors.light;
+  const { smoke, text } = colors.dark;
   const authContext = useContext(AuthContext);
   const [createVisitor, { loading, error }] = useMutation(REGISTER_USER, {
     onCompleted: ({ createVisitor }) => {
@@ -155,7 +133,6 @@ const RegisterScreen: React.FC = () => {
                           : { marginBottom: 25 }
                       ]}
                       value={values.firstname}
-                      autoFocus
                     />
                     {touched.firstname && errors.firstname && (
                       <Text style={styles.errorMsg}>{errors.firstname}</Text>
@@ -279,7 +256,7 @@ const RegisterScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.light.primary,
+    backgroundColor: colors.dark.primary,
     flex: 1,
     padding: 15
   },
@@ -300,7 +277,7 @@ const styles = StyleSheet.create({
     marginBottom: 15
   },
   errorMsg: {
-    color: colors.light.error,
+    color: colors.dark.error,
     fontSize: 12,
     textAlign: "left",
     width: "100%",

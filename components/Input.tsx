@@ -1,4 +1,4 @@
-import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import React, { forwardRef } from "react";
 import {
   KeyboardTypeOptions,
@@ -72,7 +72,7 @@ const Input: React.FC<InputProps> = forwardRef<Ref, InputProps>(
           {...props}
         />
         {icon && (
-          <AntDesign
+          <Ionicons
             name={icon.name}
             size={icon.size}
             color="#fff"
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     right: 0
   },
   errorMsg: {
-    color: colors.light.error,
+    color: colors.dark.error,
     fontSize: 12,
     textAlign: "left",
     width: "100%",
