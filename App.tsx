@@ -12,6 +12,7 @@ import AuthContext from "./context/auth-context";
 import LoginScreen from "./screens/Login";
 import MeetupsScreen from "./screens/Meetups";
 import RegisterScreen from "./screens/Register";
+import SpeakersScreen from "./screens/Speakers";
 import { colors } from "./styles/colors";
 
 export type RootParamList = {
@@ -114,7 +115,7 @@ const App: React.FC = () => {
                     backgroundColor: colors.dark.accent
                   }}
                 />
-                <Tab.Screen name="Speakers" component={MeetupsScreen} />
+                <Tab.Screen name="Speakers" component={SpeakersScreen} />
               </Tab.Navigator>
             )}
           </AuthContext.Provider>
