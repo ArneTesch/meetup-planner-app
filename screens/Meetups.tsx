@@ -32,7 +32,7 @@ const MeetupsScreen: React.FC<Props> = props => {
 
   const { data, loading, error } = useQuery(GET_MEETUPS, {
     onCompleted: data => {
-      console.log(data.meetups);
+      // console.log(data.meetups);
       setMeetups(data.meetups);
     }
   });
