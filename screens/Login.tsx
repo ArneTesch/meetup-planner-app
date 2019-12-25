@@ -55,14 +55,15 @@ const LoginScreen = ({ navigation }) => {
   const authContext = useContext(AuthContext);
   const [login, { loading }] = useLazyQuery(LOGIN, {
     onCompleted: data => {
+      console.log(data);
+      console.log("ok");
       if (data) {
+        console.log(data);
         authContext.login(
           data.visitorLogin.token,
           data.visitorLogin.visitorId,
           data.visitorLogin.tokenExpiration
         );
-      } else {
-        console.log(data);
       }
     }
   });
@@ -71,6 +72,7 @@ const LoginScreen = ({ navigation }) => {
   });
 
   const onSubmit = handleSubmit(({ email, password }) => {
+    console.log(email, password);
     login({
       variables: {
         email: email,

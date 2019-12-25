@@ -27,6 +27,18 @@ const client = new ApolloClient({
   uri: "http://192.168.10.143:8000/graphql"
 });
 
+// const client = new ApolloClient({
+//   uri: "http://192.168.10.143:8000/graphql",
+//   request: async operation => {
+//     const token = await AsyncStorage.getItem("auth_token");
+//     operation.setContext({
+//       headers: {
+//         Authorization: token && `Bearer ${token}`
+//       }
+//     });
+//   }
+// });
+
 const Stack = createStackNavigator<RootParamList>();
 
 const App: React.FC = () => {
